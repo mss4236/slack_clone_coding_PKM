@@ -2,12 +2,11 @@ import path from 'path';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 import webpack, {Configuration as WebpackConfiguration} from 'webpack';
 import {Configuration as WebpackDevServerConfiguration} from 'webpack-dev-server';
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 
 interface Configuration extends WebpackConfiguration {
     devServer? : WebpackDevServerConfiguration;
 }
-
-import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -46,11 +45,11 @@ const config: Configuration = {
                         '@babel/preset-react',
                         '@babel/preset-typescript',
                     ],
-                    // env: {
-                    //     development: {
-                    //         plugins: [require.resolve('react-refresh/babel')],
-                    //     },
-                    // },
+                    env: {
+                        development: {
+                            plugins: [require.resolve('react-refresh/babel')],
+                        },
+                    },
                 },
                 exclude: path.join(__dirname, 'node_modules'),
             },
@@ -61,7 +60,7 @@ const config: Configuration = {
         ],
     },
     plugins: [
-        new ForkTsCheckerWebpackPlugin({
+        new ForkTsCheckerWebpackPlugin({    // ts랑 webpack이랑 동시에 돌아가게 해줌. 원래 ts검사할때 blocking식으로 함
             async: false,
             // eslint: {
             //     files: "./src/**/*",
@@ -75,19 +74,17 @@ const config: Configuration = {
         publicPath: '/dist/',
     },
     devServer: {
+        historyApiFallback: true, // react-router할때 필요한 설정
+        port: 3090,
         devMiddleware: { publicPath: '/dist/'},
         static: { directory: path.resolve(__dirname) },
-        hot: true,
+        //hot: true,
     },
 };
 
 if(isDevelopment && config.plugins) {
     config.plugins.push(new webpack.HotModuleReplacementPlugin());
-    config.plugins.push(new ReactRefreshWebpackPlugin({
-        overlay: {
-            useURLPolyfill: true
-        }
-    }));
+    config.plugins.push(new ReactRefreshWebpackPlugin());
     //config.plugins.push(new BundleAnalyzerPlugin({ analyzerMode: 'server', openAnalyzer: false}));
 }
 if(!isDevelopment && config.plugins){
