@@ -1,22 +1,26 @@
-import React, { useCallback, useRef, useState } from 'react';
-import { Button, Error, Form, Header, Input, Label, LinkContainer } from './style';
-
-
+import React, { useCallback, useState } from 'react';
+import axios from 'axios';
+import { Button, Error, Form, Header, Input, Label, LinkContainer, Success } from './style';
+import useChange from '@hooks/useChange';
 
 const SignUp = () => {
-    const [email, setEmail] = useState('');
-    const [nickname, setNickname] = useState('');
+    // const [email, setEmail] = useState('');
+    // const [nickname, setNickname] = useState('');
+    const [email, onChangeEmail] = useChange('');
+    const [nickname, onChangeNickname] = useChange('');
     const [password, setPassword] = useState('');
     const [passwordCheck, setPasswordCheck] = useState('');
     const [mismatchError, setMismatchError] = useState(false);
+    const [signupError, setSignupError] = useState('');
+    const [signupSuccess, setSignupSuccess] = useState(false);
 
-    const onChangeEmail = useCallback((e) => {
-        setEmail(e.target.value);
-    }, []);
+    // const onChangeEmail = useCallback((e) => {
+    //     setEmail(e.target.value);
+    // }, []);
 
-    const onChangeNickname = useCallback((e) => {
-        setNickname(e.target.value);
-    }, []);
+    // const onChangeNickname = useCallback((e) => {
+    //     setNickname(e.target.value);
+    // }, []);
 
     const onChangePassword = useCallback((e) => {
         setPassword(e.target.value);
@@ -30,9 +34,20 @@ const SignUp = () => {
 
     const onSubmit = useCallback((e) => {
         e.preventDefault();
-        console.log(email, nickname, password, passwordCheck);
-        
-        // 비밀번호 확인
+
+        if(!mismatchError && nickname) {
+            setSignupError(''); // 비동기 안에 들어있는 setState같은거는 비동기요청하기 전에 초기화 해주는게 좋음 (요청은 연속적으로 날리는 경우에 그전에 남아있던게 다음 요청에도 그대로 남아있는 경우가 있기 때문)
+            setSignupSuccess(false);
+            // backend의 회원가입 주소로 데이터 전송
+            axios.post('/api/users', {email, nickname, password})
+            .then((response) => {
+                setSignupSuccess(true);
+            }) // 전송 성공시
+            .catch((error) => {
+                setSignupError(error.response.data);
+            }) // 전송 실패시
+            .finally(() => {}); // 무조건
+        }
         
     }, [email, nickname, password, passwordCheck]);
 
@@ -67,6 +82,8 @@ const SignUp = () => {
                     </div>
                     {mismatchError && <Error>비밀번호가 일치하지 않습니다.</Error>}
                     {!nickname && <Error>닉네임을 입력해주세요.</Error>}
+                    {signupError && <Error>{signupError}</Error>}
+                    {signupSuccess && <Success>회원가입되었습니다. 로그인해주세요.</Success>}
                 </Label>
                 <Button type="submit">회원가입</Button>
             </Form>
