@@ -81,12 +81,12 @@ const config: Configuration = {
         port: 3090,
         devMiddleware: { publicPath: '/dist/'},
         static: { directory: path.resolve(__dirname) },
-        proxy: {    // front에서 cors 문제 해결할때 (front랑 back 둘다 localhost일때나 쓸수있음)
-            '/api/': {  // /api/ 로 시작하면
-                target: 'http://localhost:3095',    // 3095에서 요청을 보낸거처럼 한다
-                changeOrigin: true,
-            }
-        }
+        // proxy: {    // front에서 cors 문제 해결할때 (front랑 back 둘다 localhost일때나 쓸수있음)
+        //     '/api/': {  // /api/ 로 시작하면
+        //         target: 'http://localhost:3095',    // 3095에서 요청을 보낸거처럼 한다
+        //         changeOrigin: true,
+        //     }
+        // }
     },
 };
 
